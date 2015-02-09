@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Title of the document</title>
+</head>
+
+<body>
+
+    <h3>Tasks</h3>
+
+    <form data-bind="submit: addTask">
+        Add task: <input data-bind="value: newTaskTitle" placeholder="What needs to be done?" />
+        <button type="submit">Add</button>
+    </form>
+
+    <ul data-bind="foreach: tasks, visible: 0 < tasks().length">
+        <li>
+            <input type="checkbox" data-bind="checked: isDone" />
+            <input data-bind="value: title, disable: isDone" />
+            <a href="#" data-bind="click: $parent.getTask">Get</a>
+            <a href="#" data-bind="click: $parent.saveTask">Save</a>
+            <a href="#" data-bind="click: $parent.removeTask">Delete</a>
+        </li>
+    </ul>
+
+    You have <b data-bind="text: incompleteTasks().length">&nbsp;</b> incomplete task(s)
+    <span data-bind="visible: 0 == incompleteTasks().length"> - it is beer time!</span>
+
+
+    <script type="text/javascript" src="js/lib/jquery-2.1.3.js" ></script>
+    <script type="text/javascript" src="js/lib/knockout-3.2.0.js" ></script>
+
+    <script type="text/javascript" src="js/tasklist.js"></script>
+
+</body>
+</html>

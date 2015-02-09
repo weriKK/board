@@ -1,0 +1,45 @@
+HTTP Method     URI                                                 Action
+============================================================================================
+x GET             http://[hostname]/todo/api/v1.0/tasks               Retrieve list of tasks
+x POST            http://[hostname]/todo/api/v1.0/tasks               Create a new task
+
+x GET             http://[hostname]/todo/api/v1.0/tasks/[task_id]     Retrieve a task
+x PUT             http://[hostname]/todo/api/v1.0/tasks/[task_id]     Update an existing task
+x DELETE          http://[hostname]/todo/api/v1.0/tasks/[task_id]     Delete a task
+
+
+instead of module create Todo package
+implement logging (signals?)
+implement database
+implement unit tests
+
+if all this is complete, the the basic platform features are done
+we can start implementing the board services
+
+- rest api (!!! AZ ID Nem lehet mindig az utolso-nal egyel nagyobb mert akkor ujrahasznalnank IDkat!!!)
+- ^ also this crashes the app when there are 0 tasks, then tasks[-1] is an exception
+- objects in observablearrays are not observed, only array manipulations -> tasks.valueHasMutated();
+- Cross Origin Resource Sharing
+- split it into modules
+- config to set blueprint url prefixes for each part /branches /freezes etc
+- Use database (sqlite, mysql)
+- logging (file? sqlite?)
+- unit test https://github.com/xmm/flask-restful-example/blob/master/api/tests/test_api_v2.py
+- authentication? login? ldap?
+
+C:\xampp\apache\bin>ab -n 10000 -c 10 http://127.0.0.1:5000/api/v1.0/tasks
+
+
+
+# DB DB DB
+load data
+update data
+insert data (get new id)
+delete
+logging (maybe switch to streamhandler? like reddit?)
+refactor + CONFIG
+
+Hide the data objects, create classes (models) with accessors to the data
+create a database.py module file with an initialization function that can be called by app
+
+database manager, multiple databases?
