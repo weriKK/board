@@ -7,4 +7,4 @@ app = create_app(DevelopmentConfig)
 
 if __name__ == "__main__":
     # [TODO kova]: On Windows, use multithreading. On Linux, use multiple threads and / or processes
-    app.run(threaded=True)
+    app.run(threaded=True, host="0.0.0.0", port=5000)
