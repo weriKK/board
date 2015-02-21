@@ -5,15 +5,16 @@ from flask import Flask
 from .todo.views import todo_blueprint
 
 # TODO(kova) move the extension initialization into an importable module
-from .extensions import cors, db
+from .extensions import cors
 
 
 def create_app(config=None):
     app = Flask("board")
 
     init_config(app, config)
-    init_blueprints(app)
+    init_database(app)
     init_extensions(app)
+    init_blueprints(app)
     init_logging(app)
 
     return app
@@ -27,6 +28,13 @@ def init_config(app, config):
     app.config.from_object(config)
 
 
+def init_database(app):
+    from .database.db_manager import db_manager
+
+    app.dbm = db_manager()
+    app.dbm.setup_db('board', 'localhost', 3306, 'board', 'board')
+
+
 def init_blueprints(app):
     app.register_blueprint(todo_blueprint, url_prefix=app.config["API_URL_PREFIX"])
 
@@ -34,9 +42,6 @@ def init_blueprints(app):
 def init_extensions(app):
     # Exposes the configured resources to Cross Origin Resource Sharing
     cors.init_app(app)
-
-    # SqlAlchemy
-    db.init_app(app)
 
 
 def init_logging(app):
@@ -54,7 +59,7 @@ def init_logging(app):
     error_log_file_handler = create_rotating_file_log_handler(error_log_path, 1024*1024*1, 10, ERROR, formatter)
 
     # Iterate over all the loggers we need, and attach our log handlers to them
-    loggers = [app.logger, getLogger('todo_logger')]
+    loggers = [app.logger, getLogger('todo_logger'), getLogger('db_manager')]
 
     for logger in loggers:
         logger.addHandler(all_log_file_handler)
