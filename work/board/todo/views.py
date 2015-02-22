@@ -1,11 +1,12 @@
 from flask import Blueprint, abort
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
 
-from .models import db_get_tasks, db_update_task, db_insert_task, db_delete_task
+from .models import TasksTable
+
 from .log import logger
 
 
-todo_dbm = None
+todo_db = None
 todo_blueprint = Blueprint('todo_blueprint', __name__)
 
 # restapi -> get post put delete (this file), but only gathering / parsing the request arguments, then passing them to the handler
@@ -22,8 +23,8 @@ todo_blueprint = Blueprint('todo_blueprint', __name__)
 # This decorator makes the function execute when the blueprint is registered.
 @todo_blueprint.record
 def init_db_on_blueprint_registration(setup_state):
-    global todo_dbm
-    todo_dbm = setup_state.app.dbm
+    global todo_db
+    todo_db = TasksTable(setup_state.app.dbm, logger)
     return
 
 todo_api = Api(todo_blueprint)
@@ -48,14 +49,14 @@ class TaskListAPI(Resource):
 
     # Get the complete Task List
     def get(self):
-        return {'tasks': map(lambda t: marshal(t, task_fields), db_get_tasks(todo_dbm))}
+        return {'tasks': map(lambda t: marshal(t, task_fields), todo_db.find_all())}
 
     # Create a new Task
     def post(self):
         args = self.reqparse.parse_args()
 
         task = {
-            'id': db_insert_task(args['title'], todo_dbm),
+            'id': todo_db.insert(args['title']),
             'title': args['title'],
             'isDone': False
         }
@@ -72,7 +73,7 @@ class TaskAPI(Resource):
 
     # Get a single Task
     def get(self, id):
-        tasks = db_get_tasks(todo_dbm, id)
+        tasks = todo_db.find(id)
         if 0 == len(tasks):
             abort(404)
 
@@ -80,7 +81,7 @@ class TaskAPI(Resource):
 
     # Modify/Update a single Task
     def put(self, id):
-        tasks = db_get_tasks(todo_dbm, id)
+        tasks = todo_db.find(id)
         if 0 == len(tasks):
             abort(404)
 
@@ -93,18 +94,18 @@ class TaskAPI(Resource):
             if v is not None:
                 task[k] = v
 
-        db_update_task(task, todo_dbm)
+        todo_db.update(task)
 
         return {'task': task}
 
     # Delete a single Task
     def delete(self, id):
         # these are not needed, delete should return an error if the id is invalid!
-        tasks = db_get_tasks(todo_dbm, id)
+        tasks = todo_db.find(id)
         if 0 == len(tasks):
             abort(404)
 
-        db_delete_task(tasks[0], todo_dbm)
+        todo_db.delete(tasks[0])
         return { 'result': True }
 
 todo_api.add_resource(TaskListAPI, '/tasks', endpoint='tasklist')

@@ -1,45 +1,56 @@
 from sqlalchemy import Table
 
 
-def db_get_tasks(dbm, task_id=None):
-    meta = dbm.get_db_metadata('board')
-    task_table = Table('tasks', meta, autoload=True)
+# [TODO kova]: error handling?!
+#              debug logging each function + sql statement
+#              logging decorator maybe?
+class TasksTable:
+    _table = None
+    _logger = None
 
-    if 0 <= task_id:
-        result = task_table.select(task_id == task_table.c.id).execute()
-    else:
-        result = task_table.select().execute()
+    def __init__(self, dbm, logger=None):
+        self._table = Table('tasks', dbm.get_db_metadata('board'), autoload=True)
+        self._logger = logger
 
-    tasks = []
-    for row in result:
-        tasks.append({ 'id': row[0], 'title': row[1], 'isDone': row[2] })
-        print tasks[-1]
+    def _log(self, msg):
+        if self._logger is not None:
+            self._logger.debug("TasksTable - %s", msg)
 
-    return tasks
+    def _build_tasks(self, result):
+        self._log("_build_tasks")
+        tasks = []
+        for row in result:
+            tasks.append({ 'id': row[0], 'title': row[1], 'isDone': row[2] })
+            print tasks[-1]
 
+        return tasks
 
-def db_insert_task(title, dbm):
-    meta = dbm.get_db_metadata('board')
-    task_table = Table('tasks', meta, autoload=True)
+    def find_all(self):
+        self._log("find_all")
+        result = self._table.select().execute()
 
-    result = task_table.insert().execute(title=title, isDone=0)
-    newId = result.inserted_primary_key[0]
-    print 'INSERT new id: %d' % newId
+        return self._build_tasks(result)
 
-    return newId
+    def find(self, task_id):
+        self._log("find")
+        result = self._table.select(task_id == self._table.c.id).limit(1).execute()
 
+        return self._build_tasks(result)
 
-def db_update_task(task, dbm):
-    meta = dbm.get_db_metadata('board')
-    task_table = Table('tasks', meta, autoload=True)
+    def insert(self, title):
+        self._log("insert")
+        result = self._table.insert().execute(title=title, isDone=0)
+        new_id = result.inserted_primary_key[0]
+        print 'INSERT new id: %d' % new_id
 
-    result = task_table.update(task['id'] == task_table.c.id).execute(isDone=task['isDone'], title=task['title'])
-    print 'UPDATE matched: %d' % result.rowcount
+        return new_id
 
+    def update(self, task):
+        self._log("update")
+        result = self._table.update(task['id'] == self._table.c.id).execute(isDone=task['isDone'], title=task['title'])
+        print 'UPDATE matched: %d' % result.rowcount
 
-def db_delete_task(task, dbm):
-    meta = dbm.get_db_metadata('board')
-    task_table = Table('tasks', meta, autoload=True)
-
-    result = task_table.delete(task['id'] == task_table.c.id).execute()
-    print 'DELETE matched: %d' % result.rowcount
+    def delete(self, task):
+        self._log("delete")
+        result = self._table.delete(task['id'] == self._table.c.id).execute()
+        print 'DELETE matched: %d' % result.rowcount
