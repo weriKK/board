@@ -22,3 +22,12 @@ def create_rotating_file_log_handler(log_path, max_size, backup_count, log_level
     handler.setLevel(log_level)
     handler.setFormatter(formatter)
     return handler
+
+
+def log_method_call(method):
+    def wrapped(*args, **kwargs):
+        args[0]._log(method.__name__+"() START")
+        ret_val = method(*args, **kwargs)
+        args[0]._log(method.__name__+"() END")
+        return ret_val
+    return wrapped

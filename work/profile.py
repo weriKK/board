@@ -2,7 +2,7 @@
 from board import create_app
 from werkzeug.contrib.profiler import ProfilerMiddleware
 
-from flaskbb.configs.development import ProfileConfig
+from board.configs.development import ProfileConfig
 
 
 app = create_app(ProfileConfig)

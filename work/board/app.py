@@ -64,4 +64,10 @@ def init_logging(app):
     for logger in loggers:
         logger.addHandler(all_log_file_handler)
         logger.addHandler(error_log_file_handler)
+
+        if logger is app.logger:
+            logger.info('---------------------')
+            logger.info('---- APP STARTED ----')
+            logger.info('---------------------')
+
         logger.info('Logger initialized')
