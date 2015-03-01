@@ -39,6 +39,7 @@ task_fields = {
 }
 
 
+# [TODO kova]: manually log requests somehow, in a generic way if possible (maybe there is a before and after request method?!)
 class TaskListAPI(Resource):
     # decorators = [basicAuth.login_required]
 
