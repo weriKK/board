@@ -3,10 +3,9 @@ from flask.ext.restful import Api, Resource, reqparse, fields, marshal
 
 from .models import TasksTable
 
-from .log import logger
-
 
 todo_db = None
+logger = None
 todo_blueprint = Blueprint('todo_blueprint', __name__)
 
 # restapi -> get post put delete (this file), but only gathering / parsing the request arguments, then passing them to the handler
@@ -23,7 +22,8 @@ todo_blueprint = Blueprint('todo_blueprint', __name__)
 # This decorator makes the function execute when the blueprint is registered.
 @todo_blueprint.record
 def init_db_on_blueprint_registration(setup_state):
-    global todo_db
+    global todo_db, logger
+    logger = setup_state.app.logger
     todo_db = TasksTable(setup_state.app.dbm, logger)
     return
 

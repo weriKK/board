@@ -1,5 +1,5 @@
 from sqlalchemy import Table
-from board.utility import log_method_call, Loggable
+from board.utility import Loggable, log_method_call
 
 
 class DbTable():
@@ -21,14 +21,15 @@ class DbTable():
 
 # [TODO kova]: error handling?!
 #              debug logging each function + sql statement
-#              logging decorator maybe?
 class TasksTable(DbTable, Loggable):
     _table = None
 
     def __init__(self, dbm, logger=None):
         Loggable.__init__(self, logger=logger)
+        self._debug_log("__init__() START")
         self._table = Table('tasks', dbm.get_db_metadata('board'), autoload=True)
-        self._debug_log("AAA __init__")  # Somewhy this is not working, fix it
+        self._debug_log("__init__() END")
+        self._error_log("ERROR! OHNOES ERROR OHNOES!")
 
     @log_method_call
     def _build_tasks(self, result):

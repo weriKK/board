@@ -42,5 +42,6 @@ class DefaultConfig(object):
     LOG_FORMAT = '%(asctime)s %(levelname)s:%(name)s: %(message)s [in %(pathname)s:%(lineno)d]'
 
     # Two log files, one for errors only, one for everything
-    ERROR_LOG = "board_error.log"
-    ALL_LOG = "board.log"
+    ACCESS_LOG = "access.log"
+    MAIN_LOG = "board.log"
+    DEBUG_LOG = "board_debug.log"

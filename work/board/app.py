@@ -29,9 +29,9 @@ def init_config(app, config):
 
 
 def init_database(app):
-    from .database.db_manager import db_manager
+    from .database.db_manager import DbManager
 
-    app.dbm = db_manager()
+    app.dbm = DbManager(app.logger)
     app.dbm.setup_db('board', 'localhost', 3306, 'board', 'board')
 
 
@@ -46,28 +46,31 @@ def init_extensions(app):
 
 def init_logging(app):
     import os
-    from logging import getLogger, Formatter, DEBUG, ERROR
+    from logging import Formatter, DEBUG, INFO
     from board.utility import init_log_dir, create_rotating_file_log_handler
 
     formatter = Formatter(app.config['LOG_FORMAT'])
     log_dir = init_log_dir(app)
 
-    all_log_path = os.path.join(log_dir, app.config['ALL_LOG'])
-    all_log_file_handler = create_rotating_file_log_handler(all_log_path, 1024*1024*1, 10, DEBUG, formatter)
+    if app.debug:
 
-    error_log_path = os.path.join(log_dir, app.config['ERROR_LOG'])
-    error_log_file_handler = create_rotating_file_log_handler(error_log_path, 1024*1024*1, 10, ERROR, formatter)
+        debug_log_path = os.path.join(log_dir, app.config['DEBUG_LOG'])
+        debug_log_file_handler = create_rotating_file_log_handler(debug_log_path, 1024*1024*1, 10, DEBUG, formatter)
 
-    # Iterate over all the loggers we need, and attach our log handlers to them
-    loggers = [app.logger, getLogger('todo_logger'), getLogger('db_manager')]
+        app.logger.addHandler(debug_log_file_handler)
 
-    for logger in loggers:
-        logger.addHandler(all_log_file_handler)
-        logger.addHandler(error_log_file_handler)
+    main_log_path = os.path.join(log_dir, app.config['MAIN_LOG'])
+    main_log_file_handler = create_rotating_file_log_handler(main_log_path, 1024*1024*1, 10, INFO, formatter)
 
-        if logger is app.logger:
-            logger.info('---------------------')
-            logger.info('---- APP STARTED ----')
-            logger.info('---------------------')
+    # By default, the request logs are cought by Flask, because these are handled by the underlying
+    # WSGI module, Werkzeug (if using the built in flask development werkzeug server).
+    # access_log_path = os.path.join(log_dir, app.config['ACCESS_LOG'])
+    # werkzeug_handler = create_rotating_file_log_handler(access_log_path, 1024*1024*1, 10, INFO, formatter)
+    # werkzeug_logger = getLogger('werkzeug')
+    # werkzeug_logger.addHandler(werkzeug_handler)
 
-        logger.info('Logger initialized')
+    app.logger.addHandler(main_log_file_handler)
+    app.logger.info('---------------------')
+    app.logger.info('---- APP STARTED ----')
+    app.logger.info('---------------------')
+    app.logger.info('Logger initialized')

@@ -42,3 +42,7 @@ class Loggable():
     def _debug_log(self, msg):
         if self._logger is not None:
             self._logger.debug("%s: %s", self.__class__, msg)
+
+    def _error_log(self, msg):
+        if self._logger is not None:
+            self._logger.error("%s: %s", self.__class__, msg)
