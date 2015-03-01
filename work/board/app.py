@@ -12,10 +12,10 @@ def create_app(config=None):
     app = Flask("board")
 
     init_config(app, config)
+    init_logging(app)
     init_database(app)
     init_extensions(app)
     init_blueprints(app)
-    init_logging(app)
 
     return app
 

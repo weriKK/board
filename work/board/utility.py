@@ -26,8 +26,19 @@ def create_rotating_file_log_handler(log_path, max_size, backup_count, log_level
 
 def log_method_call(method):
     def wrapped(*args, **kwargs):
-        args[0]._log(method.__name__+"() START")
+        args[0]._debug_log(method.__name__+"() START")
         ret_val = method(*args, **kwargs)
-        args[0]._log(method.__name__+"() END")
+        args[0]._debug_log(method.__name__+"() END")
         return ret_val
     return wrapped
+
+
+class Loggable():
+    _logger = None
+
+    def __init__(self, logger=None):
+        self._logger = logger
+
+    def _debug_log(self, msg):
+        if self._logger is not None:
+            self._logger.debug("%s: %s", self.__class__, msg)
