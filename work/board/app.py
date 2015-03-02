@@ -1,4 +1,5 @@
 from flask import Flask
+
 # TODO(kova): try except ImportError handling?!
 
 # Import the Task blueprint
@@ -46,6 +47,8 @@ def init_extensions(app):
 
 def init_logging(app):
     import os
+    import json
+    from flask import request
     from logging import Formatter, DEBUG, INFO
     from board.utility import init_log_dir, create_rotating_file_log_handler
 
@@ -68,6 +71,26 @@ def init_logging(app):
     # werkzeug_handler = create_rotating_file_log_handler(access_log_path, 1024*1024*1, 10, INFO, formatter)
     # werkzeug_logger = getLogger('werkzeug')
     # werkzeug_logger.addHandler(werkzeug_handler)
+
+    @app.before_request
+    def pre_request_logging():
+        msg = "--> %s - %s %s %s" % ( request.remote_addr, request.method, request.path, request.data )
+
+        if app.debug:
+            msg += " {%s " % ( ', '.join([': '.join(x) for x in request.headers]) )
+
+        app.logger.info(msg)
+
+    @app.after_request
+    def post_request_logging(response):
+        msg = "<-- %s %s" % ( response.status, json.loads(response.get_data()) )
+
+        if app.debug:
+            msg += " {%s}" % ( ', '.join([': '.join(x) for x in response.headers]) )
+
+        app.logger.info(msg)
+
+        return response
 
     app.logger.addHandler(main_log_file_handler)
     app.logger.info('---------------------')
