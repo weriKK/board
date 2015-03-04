@@ -39,6 +39,7 @@ task_fields = {
 }
 
 
+# [Todo kova]: try catch exceptions and throw abort(500, {'message':'custom message'}) 500 errors!
 class TaskListAPI(Resource):
     # decorators = [basicAuth.login_required]
 
