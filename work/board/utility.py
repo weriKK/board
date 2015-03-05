@@ -18,7 +18,7 @@ def create_rotating_file_log_handler(log_path, max_size, backup_count, log_level
 
     from logging.handlers import RotatingFileHandler
 
-    handler = RotatingFileHandler(log_path, max_size, backup_count)
+    handler = RotatingFileHandler(log_path, maxBytes=max_size, backupCount=backup_count)
     handler.setLevel(log_level)
     handler.setFormatter(formatter)
     return handler

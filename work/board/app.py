@@ -55,6 +55,16 @@ def init_logging(app):
     formatter = Formatter(app.config['LOG_FORMAT'])
     log_dir = init_log_dir(app)
 
+    # We do not want the default Flask debug logger to propagete to the root logger
+    # [TODO kova]: This might cause logging the break when not in debug mode, in that case, we might
+    # have to initialize app.logger in non debug mode?! I dont know.
+    # This propagation was causing double logging on the console
+    # http://stackoverflow.com/questions/4566327/python-logger-logging-things-twice-to-console
+    app.logger.propagate = 0
+
+    # Set the default Flask debug log format
+    app.logger.handlers[0].setFormatter(Formatter(app.config['DEBUG_LOG_FORMAT']))
+
     if app.debug:
 
         debug_log_path = os.path.join(log_dir, app.config['DEBUG_LOG'])
@@ -65,6 +75,8 @@ def init_logging(app):
     main_log_path = os.path.join(log_dir, app.config['MAIN_LOG'])
     main_log_file_handler = create_rotating_file_log_handler(main_log_path, 1024*1024*1, 10, INFO, formatter)
 
+    app.logger.addHandler(main_log_file_handler)
+
     # By default, the request logs are cought by Flask, because these are handled by the underlying
     # WSGI module, Werkzeug (if using the built in flask development werkzeug server).
     # access_log_path = os.path.join(log_dir, app.config['ACCESS_LOG'])
@@ -74,26 +86,25 @@ def init_logging(app):
 
     @app.before_request
     def pre_request_logging():
-        msg = "--> %s - %s %s %s" % ( request.remote_addr, request.method, request.path, request.data )
+        msg = "--> %s - %s %s" % ( request.remote_addr, request.method, request.path )
 
-        if app.debug:
-            msg += " {%s " % ( ', '.join([': '.join(x) for x in request.headers]) )
+        if app.config['SHOW_REQUEST_DETAILS']:
+            msg += " { %s %s " % ( request.data, ', '.join([': '.join(x) for x in request.headers]) )
 
         app.logger.info(msg)
 
     @app.after_request
     def post_request_logging(response):
-        msg = "<-- %s %s" % ( response.status, json.loads(response.get_data()) )
+        msg = "<-- %s" % ( response.status,  )
 
-        if app.debug:
-            msg += " {%s}" % ( ', '.join([': '.join(x) for x in response.headers]) )
+        if app.config['SHOW_REQUEST_DETAILS']:
+            msg += " { %s %s}" % ( json.loads(response.get_data()), ', '.join([': '.join(x) for x in response.headers]) )
 
         app.logger.info(msg)
 
         return response
 
-    app.logger.addHandler(main_log_file_handler)
     app.logger.info('---------------------')
     app.logger.info('---- APP STARTED ----')
     app.logger.info('---------------------')
-    app.logger.info('Logger initialized')
+    app.logger.info('Loggers initialized')

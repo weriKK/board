@@ -29,7 +29,6 @@ class TasksTable(DbTable, Loggable):
         self._debug_log("__init__() START")
         self._table = Table('tasks', dbm.get_db_metadata('board'), autoload=True)
         self._debug_log("__init__() END")
-        self._error_log("ERROR! OHNOES ERROR OHNOES!")
 
     @log_method_call
     def _build_tasks(self, result):
