@@ -16,4 +16,8 @@ if __name__ == '__main__':
     # http_server.bind(5000)
     # http_server.start(0)
 
+    app.logger.info('---------------------')
+    app.logger.info('---- APP CREATED ----')
+    app.logger.info('---------------------')
+
     IOLoop.instance().start()

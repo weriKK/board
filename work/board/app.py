@@ -35,14 +35,20 @@ def init_database(app):
     app.dbm = DbManager(app.logger)
     app.dbm.setup_db('board', 'localhost', 3306, 'board', 'board')
 
+    app.logger.info('Databases initialized')
+
 
 def init_blueprints(app):
     app.register_blueprint(todo_blueprint, url_prefix=app.config["API_URL_PREFIX"])
+
+    app.logger.info('Blueprints initialized')
 
 
 def init_extensions(app):
     # Exposes the configured resources to Cross Origin Resource Sharing
     cors.init_app(app)
+
+    app.logger.info('Extensions initialized')
 
 
 def init_logging(app):
@@ -63,7 +69,7 @@ def init_logging(app):
     app.logger.propagate = 0
 
     # Set the default Flask debug log format
-    app.logger.handlers[0].setFormatter(Formatter(app.config['DEBUG_LOG_FORMAT']))
+    app.logger.handlers[0].setFormatter(Formatter(app.config['FLASK_CONSOLE_DEBUG_LOG_FORMAT']))
 
     if app.debug:
 
@@ -104,7 +110,4 @@ def init_logging(app):
 
         return response
 
-    app.logger.info('---------------------')
-    app.logger.info('---- APP STARTED ----')
-    app.logger.info('---------------------')
-    app.logger.info('Loggers initialized')
+    app.logger.info('Logging initialized')

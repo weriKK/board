@@ -39,10 +39,10 @@ class DefaultConfig(object):
     # ..\dir\application
     # ..\dir\logs
     LOG_DIR = None
-    LOG_FORMAT = '%(asctime)s %(levelname)s [in %(pathname)s:%(lineno)d] %(message)s'
+    LOG_FORMAT = '%(asctime)s %(levelname)s:%(name)s [in %(pathname)s:%(lineno)d]: %(message)s'
 
     # Default Flask console debug log format
-    DEBUG_LOG_FORMAT = LOG_FORMAT
+    FLASK_CONSOLE_DEBUG_LOG_FORMAT = LOG_FORMAT
 
     # Show the HTTP Request and Response headers and payload
     SHOW_REQUEST_DETAILS = False
