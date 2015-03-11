@@ -4,19 +4,19 @@ from board.utility import Loggable, log_method_call
 
 class DbTable():
     def find(self):
-        raise NotImplementedError('Subclasses must override foo()!')
+        raise NotImplementedError('Subclasses must override find()!')
 
     def find_all(self):
-        raise NotImplementedError('Subclasses must override foo()!')
+        raise NotImplementedError('Subclasses must override find_all()!')
 
     def insert(self):
-        raise NotImplementedError('Subclasses must override foo()!')
+        raise NotImplementedError('Subclasses must override insert()!')
 
     def update(self):
-        raise NotImplementedError('Subclasses must override foo()!')
+        raise NotImplementedError('Subclasses must override update()!')
 
     def delete(self):
-        raise NotImplementedError('Subclasses must override foo()!')
+        raise NotImplementedError('Subclasses must override delete()!')
 
 
 # [TODO kova]: error handling?!
@@ -35,7 +35,7 @@ class TasksTable(DbTable, Loggable):
         tasks = []
         for row in result:
             tasks.append({ 'id': row[0], 'title': row[1], 'isDone': row[2] })
-            self._debug_log(tasks[-1])
+            # self._debug_log(tasks[-1])
 
         return tasks
 

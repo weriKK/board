@@ -39,7 +39,7 @@ class DefaultConfig(object):
     # ..\dir\application
     # ..\dir\logs
     LOG_DIR = None
-    LOG_FORMAT = '%(asctime)s %(levelname)s:%(name)s [in %(pathname)s:%(lineno)d]: %(message)s'
+    LOG_FORMAT = '%(asctime)s %(levelname)s:%(name)s: %(message)s'
 
     # Default Flask console debug log format
     FLASK_CONSOLE_DEBUG_LOG_FORMAT = LOG_FORMAT

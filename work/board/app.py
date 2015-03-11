@@ -3,7 +3,7 @@ from flask import Flask
 # TODO(kova): try except ImportError handling?!
 
 # Import the Task blueprint
-from .todo.views import todo_blueprint
+from .todo.endpoints import todo_blueprint
 
 # TODO(kova) move the extension initialization into an importable module
 from .extensions import cors
@@ -101,7 +101,7 @@ def init_logging(app):
 
     @app.after_request
     def post_request_logging(response):
-        msg = "<-- %s" % ( response.status,  )
+        msg = "<-- %s" % ( response.status )
 
         if app.config['SHOW_REQUEST_DETAILS']:
             msg += " { %s %s}" % ( json.loads(response.get_data()), ', '.join([': '.join(x) for x in response.headers]) )

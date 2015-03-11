@@ -8,7 +8,7 @@ todo_db = None
 logger = None
 todo_blueprint = Blueprint('todo_blueprint', __name__)
 
-# restapi -> get post put delete (this file), but only gathering / parsing the request arguments, then passing them to the handler
+# endpoints -> get post put delete (this file), but only gathering / parsing the request arguments, then passing them to the handler
 # handler -> responsible for all the work on the request arguments, basically a controller (possibly as a class with
 #            handler functions for get/put/delete/etc)
 # models  -> responsible for any kind of database operation on the data, the handler uses it
