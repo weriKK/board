@@ -43,3 +43,52 @@ Hide the data objects, create classes (models) with accessors to the data
 create a database.py module file with an initialization function that can be called by app
 
 database manager, multiple databases?
+
+
+===============================================================
+PRONTO PROGRESS TRACKER
+===============================================================
+Ideas: http://www.smashingmagazine.com/2008/11/13/15-useful-project-management-tools/
+       https://www.activecollab.com/features.html
+
+If we want to show some personal pronto statistics, we will need to either log in the user,
+or simply search for user name. Or track pronto groups and filter for name. This is probably the best solution.
+Add pronto groups manually via admin interface (or edit db?:) )
+
+Active/Open Prontos
+Overall progress bar (New/Investigating/?Ready For Testing?/First Correction Complete/Final Response Sent/Closed)
+    Also track correction completeness with progress bar (1/10 Tested etc)
+        check git repos to see where the branch is? (see if it's merged into master? check merge commit message or parse repo stuff)
+        check dcif to see the correction status there? (probably a feature for later)
+        remove dcif projects when the correction is tested or CN accepted? Or when the pronto is closed remove all dcif projects?
+
+    Also track change notes (if needed) (1/10 CN)
+        Draft/Validated/Accepted? or just simply track accepted?
+    Only for not needless corrections
+
+Show Internal/Customer correction times, how much time left?
+Order prontos by time left and priority?! And top importance maybe?
+
+On click open detailed pronto information, where people can see each correction seprately
+maybe even override the automatic status manually?
+
+MANDATORY > Md16.1 EP1  - Tested                [Update, Create Project, Delete Project]
+MANDATORY > Ma16.2      - Correcting            [Update, Create Project, Delete Project]
+NEEDLESS  > Tv16.2                              [Update, Create Project, Delete Project]
+OPTIONAL  > MSS15       - Ready for testing     [Update, Create Project, Delete Project]
+
+Progress bar for first correction (status: correcting/ready for testing/tested/)
+
+The ability to manually delete DCIF projects for one correction or the entire pronto
+The ability to manually update the details of a pronto for one correction, or the entire pronto
+
+The ability to somehow get images or sack files for the pronto??? (maybe later)
+
+===============================================================
+FREEZE TRACKER
+===============================================================
+List pronto freezes, add new freezes
+Similar to the tas xls
+
+Should probably track frozen prontos instead of frozen program blocks (or have both views?)
+pronto - release - prb - responsible - CN needed? - whatever else in the XLS

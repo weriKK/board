@@ -2,6 +2,7 @@ from flask import Blueprint, abort
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
 
 from .models import TasksTable
+from .handlers import TaskListHandler
 
 
 todo_db = None
