@@ -92,3 +92,10 @@ Similar to the tas xls
 
 Should probably track frozen prontos instead of frozen program blocks (or have both views?)
 pronto - release - prb - responsible - CN needed? - whatever else in the XLS
+
+
+
+
+TORNADO exceptions / errors need to be logged (mysql error after VM restart)
+https://dev.mysql.com/doc/refman/5.0/en/gone-away.html
+http://docs.sqlalchemy.org/en/latest/core/pooling.html (search automatic..)

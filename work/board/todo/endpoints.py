@@ -1,114 +1,73 @@
-from flask import Blueprint, abort
-from flask.ext.restful import Api, Resource, reqparse, fields, marshal
+from flask import Blueprint
+from flask.ext.restful import Api, Resource, reqparse
 
 from .models import TasksTable
-from .handlers import TaskListHandler
+from .handlers import TaskListRequestHandler, TaskRequestHandler
 
 
-todo_db = None
-logger = None
+tasklist_request_handler = None
+task_request_handler = None
+
 todo_blueprint = Blueprint('todo_blueprint', __name__)
-
-# endpoints -> get post put delete (this file), but only gathering / parsing the request arguments, then passing them to the handler
-# handler -> responsible for all the work on the request arguments, basically a controller (possibly as a class with
-#            handler functions for get/put/delete/etc)
-# models  -> responsible for any kind of database operation on the data, the handler uses it
-#
-# basically: request arrives -> restapi processes the arguments -> handler does the work, possibly using models -> returns
-#            response to restapi
-#
-# similar to view/controller/model, restapi/handler/models
 
 
 # This decorator makes the function execute when the blueprint is registered.
 @todo_blueprint.record
 def init_db_on_blueprint_registration(setup_state):
-    global todo_db, logger
-    logger = setup_state.app.logger
-    todo_db = TasksTable(setup_state.app.dbm, logger)
+    global tasklist_request_handler, task_request_handler
+    db = TasksTable(setup_state.app.dbm, setup_state.app.logger)
+    tasklist_request_handler = TaskListRequestHandler(db, setup_state.app.logger)
+    task_request_handler = TaskRequestHandler(db, setup_state.app.logger)
     return
 
 todo_api = Api(todo_blueprint)
 
 # from board.auth import basicAuth
 
-# absolute=True ensures that the generated Urls will have the hostname included
-task_fields = {
-    'title': fields.String,
-    'isDone': fields.Boolean,
-    'uri': fields.Url('todo_blueprint.task', absolute=True)
-}
-
 
 # [Todo kova]: try catch exceptions and throw abort(500, {'message':'custom message'}) 500 errors!
 class TaskListAPI(Resource):
     # decorators = [basicAuth.login_required]
 
+    _request_handler = None
+
     def __init__(self):
+        super(TaskListAPI, self).__init__()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('title', type=str, required=True, help='No task title provided', location='json')
-        super(TaskListAPI, self).__init__()
+        self._request_handler = tasklist_request_handler
 
     # Get the complete Task List
     def get(self):
-        return {'tasks': map(lambda t: marshal(t, task_fields), todo_db.find_all())}
+        return self._request_handler.get_request()
 
     # Create a new Task
     def post(self):
         args = self.reqparse.parse_args()
-
-        task = {
-            'id': todo_db.insert(args['title']),
-            'title': args['title'],
-            'isDone': False
-        }
-
-        return { 'task': marshal(task, task_fields) }, 201
+        return self._request_handler.post_request(args['title'])
 
 
 class TaskAPI(Resource):
+    _request_handler = None
+
     def __init__(self):
+        super(TaskAPI, self).__init__()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('title', type=str, location='json')
         self.reqparse.add_argument('isDone', type=bool, location='json')
-        super(TaskAPI, self).__init__()
+        self._request_handler = task_request_handler
 
     # Get a single Task
     def get(self, id):
-        tasks = todo_db.find(id)
-        if 0 == len(tasks):
-            abort(404)
-
-        return {'task': marshal(tasks[0], task_fields)}
+        return self._request_handler.get_request(id)
 
     # Modify/Update a single Task
     def put(self, id):
-        tasks = todo_db.find(id)
-        if 0 == len(tasks):
-            abort(404)
-
-        # Parse the put request task object, update those tasks fields
-        # which where changed, keep the rest untouched, then update the db!
-        task = tasks[0]
-        args = self.reqparse.parse_args()
-        # [ TODO kova]: only update the db if something changed?!
-        for k, v in args.iteritems():
-            if v is not None:
-                task[k] = v
-
-        todo_db.update(task)
-
-        return {'task': task}
+        return self._request_handler.put_request(id, self.reqparse.parse_args())
 
     # Delete a single Task
     def delete(self, id):
-        # these are not needed, delete should return an error if the id is invalid!
-        tasks = todo_db.find(id)
-        if 0 == len(tasks):
-            abort(404)
-
-        todo_db.delete(tasks[0])
-        return { 'result': True }
+        return self._request_handler.delete_request(id)
 
 todo_api.add_resource(TaskListAPI, '/tasks', endpoint='tasklist')
 todo_api.add_resource(TaskAPI, '/tasks/<int:id>', endpoint='task')

@@ -1,3 +1,7 @@
+## LOGGING
+##############################################################################
+
+
 def init_log_dir(app):
     import os
 
@@ -46,3 +50,33 @@ class Loggable():
     def _error_log(self, msg):
         if self._logger is not None:
             self._logger.error("%s: %s", self.__class__, msg)
+
+
+## ERROR HANDLING
+##############################################################################
+
+
+def get_default_error_message(status_code):
+    error_messages = {
+        404: 'A resource with that ID no longer exists.'
+    }
+
+    if status_code in error_messages:
+        return error_messages[status_code]
+    else:
+        return 'Unknown error.'
+
+
+def make_error(status_code, additional_info=None, message=None):
+    from flask import jsonify
+
+    if message is None:
+        message = get_default_error_message(status_code)
+
+    response = jsonify({
+                       'status': status_code,
+                       'additional_info': additional_info,
+                       'message': message
+                       })
+    response.status_code = status_code
+    return response

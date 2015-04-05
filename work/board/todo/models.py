@@ -2,26 +2,9 @@ from sqlalchemy import Table
 from board.utility import Loggable, log_method_call
 
 
-class DbTable():
-    def find(self):
-        raise NotImplementedError('Subclasses must override find()!')
-
-    def find_all(self):
-        raise NotImplementedError('Subclasses must override find_all()!')
-
-    def insert(self):
-        raise NotImplementedError('Subclasses must override insert()!')
-
-    def update(self):
-        raise NotImplementedError('Subclasses must override update()!')
-
-    def delete(self):
-        raise NotImplementedError('Subclasses must override delete()!')
-
-
 # [TODO kova]: error handling?!
 #              debug logging each function + sql statement
-class TasksTable(DbTable, Loggable):
+class TasksTable(Loggable):
     _table = None
 
     def __init__(self, dbm, logger=None):
