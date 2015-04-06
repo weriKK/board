@@ -5,19 +5,15 @@ from .models import TasksTable
 from .handlers import TaskListRequestHandler, TaskRequestHandler
 
 
-tasklist_request_handler = None
-task_request_handler = None
-
 todo_blueprint = Blueprint('todo_blueprint', __name__)
 
 
 # This decorator makes the function execute when the blueprint is registered.
 @todo_blueprint.record
 def init_db_on_blueprint_registration(setup_state):
-    global tasklist_request_handler, task_request_handler
     db = TasksTable(setup_state.app.dbm, setup_state.app.logger)
-    tasklist_request_handler = TaskListRequestHandler(db, setup_state.app.logger)
-    task_request_handler = TaskRequestHandler(db, setup_state.app.logger)
+    TaskListAPI.inject_request_handler(TaskListRequestHandler(db, setup_state.app.logger))
+    TaskAPI.inject_request_handler(TaskRequestHandler(db, setup_state.app.logger))
     return
 
 todo_api = Api(todo_blueprint)
@@ -26,6 +22,8 @@ todo_api = Api(todo_blueprint)
 
 
 # [Todo kova]: try catch exceptions and throw abort(500, {'message':'custom message'}) 500 errors!
+# [Todo kova]: ^ Instead of the above, try using flask custom error handling!!!
+# [TODO kova]: throw exception if request handler is not injected?
 class TaskListAPI(Resource):
     # decorators = [basicAuth.login_required]
 
@@ -35,7 +33,10 @@ class TaskListAPI(Resource):
         super(TaskListAPI, self).__init__()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('title', type=str, required=True, help='No task title provided', location='json')
-        self._request_handler = tasklist_request_handler
+
+    @classmethod
+    def inject_request_handler(cls, request_handler):
+        cls._request_handler = request_handler
 
     # Get the complete Task List
     def get(self):
@@ -55,7 +56,10 @@ class TaskAPI(Resource):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('title', type=str, location='json')
         self.reqparse.add_argument('isDone', type=bool, location='json')
-        self._request_handler = task_request_handler
+
+    @classmethod
+    def inject_request_handler(cls, request_handler):
+        cls._request_handler = request_handler
 
     # Get a single Task
     def get(self, id):
