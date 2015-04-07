@@ -1,3 +1,5 @@
+import json
+
 ## LOGGING
 ##############################################################################
 
@@ -47,6 +49,10 @@ class Loggable():
         if self._logger is not None:
             self._logger.debug("%s: %s", self.__class__, msg)
 
+    def _debug_log_dict(self, msg, dictionary):
+        if self._logger is not None:
+            self._logger.debug("%s: %s %s", self.__class__, msg, json.dumps(dictionary))
+
     def _error_log(self, msg):
         if self._logger is not None:
             self._logger.error("%s: %s", self.__class__, msg)
@@ -68,15 +74,14 @@ def get_default_error_message(status_code):
 
 
 def make_error(status_code, additional_info=None, message=None):
-    from flask import jsonify
 
     if message is None:
         message = get_default_error_message(status_code)
 
-    response = jsonify({
-                       'status': status_code,
-                       'additional_info': additional_info,
-                       'message': message
-                       })
-    response.status_code = status_code
-    return response
+    response = {
+                    'status': status_code,
+                    'additional_info': additional_info,
+                    'message': message
+    }
+
+    return response, status_code

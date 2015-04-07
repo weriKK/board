@@ -6,6 +6,7 @@ from board.utility import Loggable, log_method_call
 #              debug logging each function + sql statement
 class TasksTable(Loggable):
     _table = None
+    _last_insert_id = None
 
     def __init__(self, dbm, logger=None):
         Loggable.__init__(self, logger=logger)
@@ -35,10 +36,16 @@ class TasksTable(Loggable):
     @log_method_call
     def insert(self, title):
         result = self._table.insert().execute(title=title, isDone=0)
-        new_id = result.inserted_primary_key[0]
-        self._debug_log('INSERT new id: %d' % new_id)
+        self._last_insert_id = result.inserted_primary_key[0]
 
-        return new_id
+        task = {
+            'id': result.inserted_primary_key[0],
+            'title': title,
+            'isDone': False
+        }
+
+        self._debug_log_dict('Inserted new task: ', task)
+        return task
 
     @log_method_call
     def update(self, task):
@@ -46,6 +53,6 @@ class TasksTable(Loggable):
         self._debug_log('UPDATE matched: %d' % result.rowcount)
 
     @log_method_call
-    def delete(self, task):
-        result = self._table.delete(task['id'] == self._table.c.id).execute()
+    def delete(self, task_id):
+        result = self._table.delete(task_id == self._table.c.id).execute()
         self._debug_log('DELETE matched: %d' % result.rowcount)

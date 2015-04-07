@@ -1,10 +1,8 @@
-from flask.ext.restful import fields, marshal
 from board.utility import Loggable, log_method_call, make_error
 
 
 class TaskListRequestHandler(Loggable):
     _db = None
-    _task_fields = None
 
     def __init__(self, db, logger):
         Loggable.__init__(self, logger=logger)
@@ -12,33 +10,19 @@ class TaskListRequestHandler(Loggable):
 
         self._db = db
 
-        # absolute=True ensures that the generated Urls will have the hostname included
-        self._task_fields = {
-            'title': fields.String,
-            'isDone': fields.Boolean,
-            'uri': fields.Url('todo_blueprint.task', absolute=True)
-        }
-
         self._debug_log("__init__() END")
 
     @log_method_call
     def get_request(self):
-        return {'tasks': map(lambda t: marshal(t, self._task_fields), self._db.find_all())}, 200
+        return self._db.find_all(), 200
 
     @log_method_call
     def post_request(self, title):
-        task = {
-            'id': self._db.insert(title),
-            'title': title,
-            'isDone': False
-        }
-
-        return { 'task': marshal(task, self._task_fields) }, 201
+        return self._db.insert(title), 201
 
 
 class TaskRequestHandler(Loggable):
     _db = None
-    _task_fields = None
 
     def __init__(self, db, logger):
         Loggable.__init__(self, logger=logger)
@@ -46,23 +30,16 @@ class TaskRequestHandler(Loggable):
 
         self._db = db
 
-        # absolute=True ensures that the generated Urls will have the hostname included
-        self._task_fields = {
-            'title': fields.String,
-            'isDone': fields.Boolean,
-            'uri': fields.Url('todo_blueprint.task', absolute=True)
-        }
-
         self._debug_log("__init() END")
 
     @log_method_call
     def get_request(self, id):
         tasks = self._db.find(id)
         if 0 == len(tasks):
-
+            self._error_log("Resource with id: %d not found!" % id)
             return make_error(404)
 
-        return {'task': marshal(tasks[0], self._task_fields)}
+        return tasks[0], 200
 
     @log_method_call
     def put_request(self, id, args=None):
@@ -80,7 +57,7 @@ class TaskRequestHandler(Loggable):
 
         self._db.update(tasks[0])
 
-        return {'task': tasks[0]}, 200
+        return tasks[0], 200
 
     @log_method_call
     def delete_request(self, id):
@@ -89,5 +66,5 @@ class TaskRequestHandler(Loggable):
         if 0 == len(tasks):
             return make_error(404)
 
-        self._db.delete(tasks[0])
-        return { 'result': True }, 200
+        self._db.delete(id)
+        return tasks[0], 200
