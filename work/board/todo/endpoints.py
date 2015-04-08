@@ -1,9 +1,11 @@
 from flask import Blueprint
-from flask.ext.restful import Api, Resource, reqparse
+from flask.ext.restful import Api, reqparse
 from flask.ext.restful import fields, marshal
 
 from .models import TasksTable
 from .handlers import TaskListRequestHandler, TaskRequestHandler
+
+from board.utility import BoardResource
 
 
 LOGGER = None
@@ -38,21 +40,6 @@ def TODO_RESPONSE_FORMATTER(self, wrapper, output, status_code):
 
 todo_blueprint = Blueprint('todo_blueprint', __name__)
 
-
-# This decorator makes the function execute when the blueprint is registered.
-@todo_blueprint.record
-def init_db_on_blueprint_registration(setup_state):
-    global LOGGER, TODO_RESPONSE_FORMATTER
-    LOGGER = setup_state.app.logger
-
-    db = TasksTable(setup_state.app.dbm, setup_state.app.logger)
-    TaskListAPI._request_handler = TaskListRequestHandler(db, LOGGER)
-    TaskListAPI._format_response = TODO_RESPONSE_FORMATTER
-
-    TaskAPI._request_handler = TaskRequestHandler(db, LOGGER)
-    TaskAPI._format_response = TODO_RESPONSE_FORMATTER
-    return
-
 todo_api = Api(todo_blueprint)
 
 # from board.auth import basicAuth
@@ -61,24 +48,12 @@ todo_api = Api(todo_blueprint)
 # [Todo kova]: try catch exceptions and throw abort(500, {'message':'custom message'}) 500 errors!
 # [Todo kova]: ^ Instead of the above, try using flask custom error handling!!!
 # [TODO kova]: throw exception if request handler is not injected?
-class TaskListAPI(Resource):
-    # decorators = [basicAuth.login_required]
-
-    _request_handler = None
-    _format_response = None
+class TaskListAPI(BoardResource):
 
     def __init__(self):
         super(TaskListAPI, self).__init__()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('title', type=str, required=True, help='No task title provided', location='json')
-
-    @classmethod
-    def inject_request_handler(cls, handler):
-        cls._request_handler = handler
-
-    @classmethod
-    def inject_response_formatter(cls, formatter):
-        cls._format_response = formatter
 
     # Get the complete Task List
     def get(self):
@@ -92,23 +67,13 @@ class TaskListAPI(Resource):
         return self._format_response('task', output, status), status
 
 
-class TaskAPI(Resource):
-    _request_handler = None
-    _format_response = None
+class TaskAPI(BoardResource):
 
     def __init__(self):
         super(TaskAPI, self).__init__()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('title', type=str, location='json')
         self.reqparse.add_argument('isDone', type=bool, location='json')
-
-    @classmethod
-    def inject_request_handler(cls, request_handler):
-        cls._request_handler = request_handler
-
-    @classmethod
-    def inject_response_formatter(cls, formatter):
-        cls._format_response = formatter
 
     # Get a single Task
     def get(self, id):
@@ -125,5 +90,22 @@ class TaskAPI(Resource):
         output, status = self._request_handler.delete_request(id)
         return self._format_response('task', output, status), status
 
-todo_api.add_resource(TaskListAPI, '/tasks', endpoint='tasklist')
-todo_api.add_resource(TaskAPI, '/tasks/<int:id>', endpoint='task')
+
+# This decorator makes the function execute when the blueprint is registered.
+@todo_blueprint.record
+def init_endpoints_on_blueprint_registration(setup_state):
+    global LOGGER
+    LOGGER = setup_state.app.logger
+    LOGGER.debug("Todo Blueprint Registration START")
+
+    db = TasksTable(setup_state.app.dbm, setup_state.app.logger)
+
+    # [TODO Kova]: add logger to BoardResouce using make_api?! Then all of the methods can be logged!
+    tasklistapi = TaskListAPI.make_api(TaskListRequestHandler(db, LOGGER), TODO_RESPONSE_FORMATTER)
+    taskapi = TaskAPI.make_api(TaskRequestHandler(db, LOGGER), TODO_RESPONSE_FORMATTER)
+
+    todo_api.add_resource(tasklistapi, '/tasks', endpoint='tasklist')
+    todo_api.add_resource(taskapi, '/tasks/<int:id>', endpoint='task')
+
+    LOGGER.debug("Todo Blueprint Registration END")
+    return

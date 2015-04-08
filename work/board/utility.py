@@ -1,3 +1,4 @@
+from flask.ext.restful import Resource
 import json
 
 ## LOGGING
@@ -79,9 +80,24 @@ def make_error(status_code, additional_info=None, message=None):
         message = get_default_error_message(status_code)
 
     response = {
-                    'status': status_code,
-                    'additional_info': additional_info,
-                    'message': message
+        'status': status_code,
+        'additional_info': additional_info,
+        'message': message
     }
 
     return response, status_code
+
+
+## CUSTOM RESOURCE
+##############################################################################
+
+# [TODO Kova]: Refactor this shit outta here!!
+class BoardResource(Resource):
+    _request_handler = None
+    _format_response = None
+
+    @classmethod
+    def make_api(cls, handler, formatter):
+        cls._request_handler = handler
+        cls._format_response = formatter
+        return cls
