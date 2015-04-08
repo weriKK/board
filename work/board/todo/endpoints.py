@@ -6,6 +6,10 @@ from .models import TasksTable
 from .handlers import TaskListRequestHandler, TaskRequestHandler
 
 
+LOGGER = None
+
+
+# [TODO KOVA]: cant log this method without a logger! Resource classes have no loggers
 # absolute=True ensures that the generated Urls will have the hostname included
 TODO_OUTPUT_FIELDS = {
     'title': fields.String,
@@ -14,18 +18,19 @@ TODO_OUTPUT_FIELDS = {
 }
 
 
-# [TODO KOVA]: cant log this method without a logger! Resource classes have no loggers
-# @log_method_call
-def format_todo_response(self, wrapper, output, status_code):
+def TODO_RESPONSE_FORMATTER(self, wrapper, output, status_code):
     if status_code < 200 or 300 <= status_code:
+        LOGGER.debug("TODO_RESPONSE_FORMATTER: not 2xx Success")
         return output
 
     # if output is a dictionary { .. }
     if isinstance(output, dict):
+        LOGGER.debug("TODO_RESPONSE_FORMATTER: dictionary output")
         return {wrapper: marshal(output, TODO_OUTPUT_FIELDS)}
 
     # if output is a list (of dictionaries) [ {}, {}.. ]
     elif isinstance(output, list):
+        LOGGER.debug("TODO_RESPONSE_FORMATTER: list output")
         return {wrapper: map(lambda t: marshal(t, TODO_OUTPUT_FIELDS), output)}
 
     else:
@@ -37,12 +42,15 @@ todo_blueprint = Blueprint('todo_blueprint', __name__)
 # This decorator makes the function execute when the blueprint is registered.
 @todo_blueprint.record
 def init_db_on_blueprint_registration(setup_state):
-    db = TasksTable(setup_state.app.dbm, setup_state.app.logger)
-    TaskListAPI.inject_request_handler(TaskListRequestHandler(db, setup_state.app.logger))
-    TaskListAPI.inject_response_formatter(format_todo_response)
+    global LOGGER, TODO_RESPONSE_FORMATTER
+    LOGGER = setup_state.app.logger
 
-    TaskAPI.inject_request_handler(TaskRequestHandler(db, setup_state.app.logger))
-    TaskAPI.inject_response_formatter(format_todo_response)
+    db = TasksTable(setup_state.app.dbm, setup_state.app.logger)
+    TaskListAPI._request_handler = TaskListRequestHandler(db, LOGGER)
+    TaskListAPI._format_response = TODO_RESPONSE_FORMATTER
+
+    TaskAPI._request_handler = TaskRequestHandler(db, LOGGER)
+    TaskAPI._format_response = TODO_RESPONSE_FORMATTER
     return
 
 todo_api = Api(todo_blueprint)
