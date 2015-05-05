@@ -16,28 +16,38 @@ $(function () {
   var salesChart = new Chart(salesChartCanvas);
 
   var salesChartData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    labels: ["w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w10", "w11", "w12"],
     datasets: [
       {
         label: "Electronics",
-        fillColor: "rgb(210, 214, 222)",
-        strokeColor: "rgb(210, 214, 222)",
+        fillColor: "rgba(38, 176, 237, 0.85)",
+        strokeColor: "rgb(38, 176, 237)",
         pointColor: "rgb(210, 214, 222)",
         pointStrokeColor: "#c1c7d1",
         pointHighlightFill: "#fff",
         pointHighlightStroke: "rgb(220,220,220)",
-        data: [65, 59, 80, 81, 56, 55, 40]
+        data: [65, 59, 80, 81, 56, 55, 40, 65, 59, 80, 81, 56]
       },
       {
         label: "Digital Goods",
-        fillColor: "rgba(60,141,188,0.9)",
-        strokeColor: "rgba(60,141,188,0.8)",
+        fillColor: "rgba(10, 232, 104, 0.9)",
+        strokeColor: "rgb(10, 232, 104)",
         pointColor: "#3b8bba",
         pointStrokeColor: "rgba(60,141,188,1)",
         pointHighlightFill: "#fff",
         pointHighlightStroke: "rgba(60,141,188,1)",
-        data: [28, 48, 40, 19, 86, 27, 90]
-      }
+        data: [28, 48, 40, 19, 86, 27, 90, 28, 48, 40, 19, 86]
+      },
+      {
+        label: "Digital Goods",
+        fillColor: "rgba(255, 143, 47, 0.9)",
+        strokeColor: "rgb(255, 143, 47)",
+        pointColor: "#3b8bba",
+        pointStrokeColor: "rgba(60,141,188,1)",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(60,141,188,1)",
+        data: [11, 52, 12, 13, 18, 22, 35, 11, 52, 12, 13, 18]
+      }        
     ]
   };
 
@@ -45,7 +55,7 @@ $(function () {
     //Boolean - If we should show the scale at all
     showScale: true,
     //Boolean - Whether grid lines are shown across the chart
-    scaleShowGridLines: false,
+    scaleShowGridLines: true,
     //String - Colour of the grid lines
     scaleGridLineColor: "rgba(0,0,0,.05)",
     //Number - Width of the grid lines
@@ -53,7 +63,7 @@ $(function () {
     //Boolean - Whether to show horizontal lines (except X axis)
     scaleShowHorizontalLines: true,
     //Boolean - Whether to show vertical lines (except Y axis)
-    scaleShowVerticalLines: true,
+    scaleShowVerticalLines: false,
     //Boolean - Whether the line is curved between points
     bezierCurve: true,
     //Number - Tension of the bezier curve between points
@@ -81,7 +91,7 @@ $(function () {
   };
 
   //Create the line chart
-  salesChart.Line(salesChartData, salesChartOptions);
+  salesChart.StackedBar(salesChartData, salesChartOptions);
 
   //---------------------------
   //- END MONTHLY SALES CHART -
