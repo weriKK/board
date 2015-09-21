@@ -278,30 +278,77 @@
 <!-- Pronto Status Table row -->
           <div class="row">
             <div class="col-md-12">
+              <!-- LIST of currently ongoing sanities -->
+              <div class="box box-info">
+                  <div class="box-header with-border">
+                      <h3 class="box-title">Ongoing Sanities</h3>
+                  </div>
+                  <div class="box-body">
+                      Here we will have a table of currently ongoing sanities with their prontos and image versions.
+                      There could also be a button to copy the sanity details as XML for the Sanity guys to paste into their excel files.
+                      There should be a button to close/finish the sanity testing. This hides the sanity row (and the freeze row)
+                      We might need a new page for listing all previous sanities that we closed.
+                      (maybe a View all sanities button in the bottom right, just like on the index page's pronto deadlines box)
+                  </div>
+              </div>
               <!-- TABLE: Pronto Status -->
               <div class="box box-info">
                 <div class="box-header with-border">
-                  <h3 class="box-title">Data Table With Full Features</h3>
+                  <h3 class="box-title">SANITY TABLE - Data Table With Full Features</h3>
                 </div><!-- /.box-header -->
                 <div class="box-body">
+                    Here we will have a list of frozen image versions and prbs and the contents (prontos fcs others w/e)
+                    Users can select rows from this table to add/remove images to existing sanities or to create a new sanity.
+                    These tables can split by release, but have to be able to define multiple releases for PRBs for cases where
+                    older release's code is used for newer releases as well. eg. the latest ldc repo is for m16.1, everything newer
+                    is compiled from this one. Maybe even support drag and drop later
+
+                    Once a row is added to a sanity, color the row and note that it's currently under sanity testing.
+                    Once the sanity is completed, hide the row. We might need a new page to list all freezes, even hidden ones (and their status)
+                    (maybe a View all freezes button in the bottom right, just like on the index page's pronto deadlines box)
                   <table id="example1" class="table table-bordered table-striped table-hover">
                     <thead>
                       <tr>
-                        <th>Rendering engine</th>
-                        <th>Browser</th>
-                        <th>Platform(s)</th>
-                        <th>Engine version</th>
-                        <th>CSS grade</th>
+                        <th>Freeze Date</th>
+                        <th>Release</th>
+                        <th>PRB</th>
+                        <th>Environment</th>
+                        <th>Content</th>
+                        <th>Comment</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td>Trident</td>
-                        <td>Internet
-                          Explorer 4.0</td>
-                        <td>Win 95+</td>
-                        <td> 4</td>
-                        <td>X</td>
+                        <td>2015-09-16 22:22:22</td>
+                        <td>MSS15</td>
+                        <td>LDC</td>
+                        <td>24.27-0</td>
+                        <td>PR1212313<br/>PR1212313</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>2015-09-16 22:22:22</td>
+                        <td>MSS15</td>
+                        <td>LDC</td>
+                        <td>24.27-0</td>
+                        <td>PR1212313</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>2015-09-16 22:22:22</td>
+                        <td>MSS15</td>
+                        <td>LDC</td>
+                        <td>24.27-0</td>
+                        <td>PR1212313<br/>PR1212313PR1212313<br/>PR1212313PR1212313<br/>PR1212313</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>2015-09-16 22:22:22</td>
+                        <td>MSS15</td>
+                        <td>LDC</td>
+                        <td>24.27-0</td>
+                        <td>PR1212313</td>
+                        <td></td>
                       </tr>
                       <tr>
                         <td>Trident</td>
