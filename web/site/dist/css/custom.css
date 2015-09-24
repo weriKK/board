@@ -1,0 +1,7 @@
+.selected {
+    background-color: #CEDEF4 !important;
+}
+
+.odd.selected {
+    background-color: #BAD0EF !important;
+}
