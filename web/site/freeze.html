@@ -402,7 +402,7 @@
         {
             for (var i = 0, len = array.length; i < len; i++)
             {
-                if (array[i] == value)
+                if (array[i] === value)
                     return i;
             }
 
@@ -445,7 +445,7 @@
                     {
                         "searchable": false,
                         "orderable": false,
-                        "classname": "dt-cell-center",
+                        "className": "dt-cell-selectrow dt-cell-center",
                         "render": function(data, type, full, meta) {
                             return '<input type="checkbox">';
                         }
@@ -475,7 +475,7 @@
             freeze_table.on('draw', function()
             {
                 updateSelectAllState(freeze_table);
-            })
+            });
 
             $('#freeze_table tbody').on('click', 'input[type="checkbox"]', function(event)
             {
@@ -501,7 +501,13 @@
                 updateSelectAllState(freeze_table);
 
                 event.stopPropagation();
-            })
+            });
+
+            $('#freeze_table').on("click", "tbody tr td:first-child, thead th:first-child", function(event)
+            {
+                $(this).parent().find('input[type="checkbox"]').trigger('click');
+                event.stopPropagation();
+            });
 
             $('#freeze_table thead input[name="select_all"]').on("click", function(event)
             {
@@ -511,15 +517,15 @@
                     $('#freeze_table tbody input[type="checkbox"]:checked').trigger('click');
 
                 event.stopPropagation();
-            })
+            });
 
             $('#create_sanity').on('click', function(event)
             {
                 //var button = this;
                 console.log(selected_rows);
                 window.alert(selected_rows);
-
-            })
+                event.stopPropagation();
+            });
 
 
         });
