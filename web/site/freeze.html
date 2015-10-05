@@ -291,6 +291,33 @@
                       There should be a button to close/finish the sanity testing. This hides the sanity row (and the freeze row)
                       We might need a new page for listing all previous sanities that we closed.
                       (maybe a View all sanities button in the bottom right, just like on the index page's pronto deadlines box)
+                      <br/><br/>
+                      A table is probably not the best idea. Better have boxes with the details of each sanity<br/><br/>
+                    <table id="sanity_table" class="table table-bordered table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th><input name="select_all" value="1" type="checkbox"></th>
+                          <th>Status</th>
+                          <th>Release</th>
+                          <th>PRB</th>
+                          <th>Version</th>
+                          <th>Content</th>
+                          <th>Comment</th>
+                        </tr>
+                      </thead>
+
+                      <tfoot>
+                        <tr>
+                          <th></th>
+                          <th>Status</th>
+                          <th>Release</th>
+                          <th>PRB</th>
+                          <th>Version</th>
+                          <th>Content</th>
+                          <th>Comment</th>
+                        </tr>
+                      </tfoot>
+                    </table>
                   </div>
               </div>
               <!-- TABLE: Pronto Status -->
@@ -316,7 +343,7 @@
                         <th>Freeze Date</th>
                         <th>Release</th>
                         <th>PRB</th>
-                        <th>Environment</th>
+                        <th>Version</th>
                         <th>Content</th>
                         <th>Comment</th>
                       </tr>
@@ -325,11 +352,12 @@
                     <tfoot>
                       <tr>
                         <th></th>
-                        <th>Rendering engine</th>
-                        <th>Browser</th>
-                        <th>Platform(s)</th>
-                        <th>Engine version</th>
-                        <th>CSS grade</th>
+                         <th>Freeze Date</th>
+                        <th>Release</th>
+                        <th>PRB</th>
+                        <th>Version</th>
+                        <th>Content</th>
+                        <th>Comment</th>
                       </tr>
                     </tfoot>
                   </table>
