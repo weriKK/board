@@ -283,7 +283,7 @@
               <!-- LIST of currently ongoing sanities -->
               <div class="box box-info">
                   <div class="box-header with-border">
-                      <h3 class="box-title">Ongoing Sanities</h3>
+                      <h3 class="box-title">SANITY TABLE - Ongoing Sanities</h3>
                   </div>
                   <div class="box-body">
                       Here we will have a table of currently ongoing sanities with their prontos and image versions.
@@ -296,7 +296,6 @@
                     <table id="sanity_table" class="table table-bordered table-striped table-hover">
                       <thead>
                         <tr>
-                          <th><input name="select_all" value="1" type="checkbox"></th>
                           <th>Status</th>
                           <th>Release</th>
                           <th>PRB</th>
@@ -308,7 +307,6 @@
 
                       <tfoot>
                         <tr>
-                          <th></th>
                           <th>Status</th>
                           <th>Release</th>
                           <th>PRB</th>
@@ -323,7 +321,7 @@
               <!-- TABLE: Pronto Status -->
               <div class="box box-info">
                 <div class="box-header with-border">
-                  <h3 class="box-title">SANITY TABLE - Data Table With Full Features</h3>
+                  <h3 class="box-title">FREEZE TABLE - Frozen Images</h3>
                 </div><!-- /.box-header -->
                 <div class="box-body">
                     Here we will have a list of frozen image versions and prbs and the contents (prontos fcs others w/e)
@@ -426,6 +424,16 @@
 
     <script type="text/javascript">
 
+        function assert(condition, message) {
+            if (!condition) {
+                message = message || "Assertion failed";
+                window.alert(message);
+                if (typeof Error !== "undefined") {
+                    throw new Error(message);
+                }
+                throw message; // Fallback
+            }
+        }
         function find_in_array(value, array)
         {
             for (var i = 0, len = array.length; i < len; i++)
@@ -463,6 +471,19 @@
 
         $(function ()
         {
+            var sanityDataSet = [];
+
+            var sanity_table = $("#sanity_table").DataTable({
+                "processing": true,
+                "columns": [
+                    { "data": "status" },
+                    { "data": "rel" },
+                    { "data": "prb" },
+                    { "data": "env" },
+                    { "data": "content" },
+                    { "data": "comment" }
+                ]
+            });
 
             var selected_rows = [];
 
@@ -509,15 +530,14 @@
             {
                 var $row = $(this).closest('tr');
                 var row_data = freeze_table.row($row).data();
-                var row_id = row_data.id;
 
-                var index = find_in_array(row_id, selected_rows);
+                var index = find_in_array(row_data.id, selected_rows);
 
                 //$(this)[0] === this
 
                 // Store or remove the selected row's id.
                 if (this.checked && -1 === index)
-                    selected_rows.push(row_id);
+                    selected_rows.push(row_data.id);
                 else if (!this.checked && -1 !== index)
                     selected_rows.splice(index, 1);
 
@@ -547,15 +567,58 @@
                 event.stopPropagation();
             });
 
+            function find_in_sanitydataset(value)
+            {
+                var sanityDataSet = sanity_table.rows().data();
+
+                for (var i = 0, len = sanityDataSet.length; i < len; i++)
+                {
+                    if (sanityDataSet[i].id === value)
+                        return i;
+                }
+
+                return -1;
+            }
+
             $('#create_sanity').on('click', function(event)
             {
                 //var button = this;
-                console.log(selected_rows);
-                window.alert(selected_rows);
+
+                var newSanityData = [];
+                var freezeDataSet = freeze_table.rows().data();
+
+                for (var i = 0, len = freezeDataSet.length; i < len; i++)
+                {
+                    var row_data = freezeDataSet[i];
+
+                    if ( 0 <= find_in_array(row_data.id, selected_rows) &&
+                         -1 === find_in_sanitydataset(row_data.id))
+                    {
+                        var data = new Object();
+                        data.id      = row_data.id;
+                        data.status  = row_data.id;
+                        data.rel     = row_data.rel;
+                        data.prb     = row_data.prb;
+                        data.env     = row_data.env;
+                        data.content = row_data.content;
+                        data.comment = row_data.comment;
+                        newSanityData.push(data);
+                    }
+                }
+
+                window.alert("TODO");
+                //TODO: Introduce a flag for 'under sanity', and recolor/make them unselectable
+                //      within the FREEZE table
+
+                // ALso instead of a sanity data table, have a separate info box for each release with it's own
+                // list of added freezes. + ability to add/remove from this list (also updates the freeze table)
+
+                // Once the sanity is completed, update the flag of the freeze table row, hide it in the table, save it
+                // in the db, and next time dont even return it to the client (unless specifically asked for it)
+
+                sanity_table.rows.add(newSanityData).draw();
                 event.stopPropagation();
             });
-
-
         });
     </script>
   </body>
