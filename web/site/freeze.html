@@ -318,6 +318,39 @@
                     </table>
                   </div>
               </div>
+
+              <!-- TEST sanity box -->
+              <div class="box box-info">
+                  <div class="box-header with-border">
+                      <h3 class="box-title">SANITY BOX - Ongoing MSS15 Sanities</h3>
+                  </div>
+                  <div class="box-body">
+                    <table id="sanity_table1" class="table table-bordered table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>Status</th>
+                          <th>Release</th>
+                          <th>PRB</th>
+                          <th>Version</th>
+                          <th>Content</th>
+                          <th>Comment</th>
+                        </tr>
+                      </thead>
+
+                      <tfoot>
+                        <tr>
+                          <th>Status</th>
+                          <th>Release</th>
+                          <th>PRB</th>
+                          <th>Version</th>
+                          <th>Content</th>
+                          <th>Comment</th>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+              </div>
+
               <!-- TABLE: Pronto Status -->
               <div class="box box-info">
                 <div class="box-header with-border">
@@ -334,7 +367,7 @@
                     Once the sanity is completed, hide the row. We might need a new page to list all freezes, even hidden ones (and their status)
                     (maybe a View all freezes button in the bottom right, just like on the index page's pronto deadlines box)
                     <button id="create_sanity" type="button">Submit Lols!</button>
-                  <table id="freeze_table" class="table table-bordered table-striped table-hover">
+                  <table id="freeze_table" class="table table-bordered table-striped">
                     <thead>
                       <tr>
                         <th><input name="select_all" value="1" type="checkbox"></th>
@@ -471,7 +504,10 @@
 
         $(function ()
         {
-            var sanityDataSet = [];
+            var sanityDataSet = [
+                {"id":"1","status":"1","rel":"1","prb":"1","env":"1","content":"1","comment":"1"},
+                {"id":"2","status":"2","rel":"2","prb":"2","env":"2","content":"2","comment":"2"}
+            ];
 
             var sanity_table = $("#sanity_table").DataTable({
                 "processing": true,
@@ -482,21 +518,26 @@
                     { "data": "env" },
                     { "data": "content" },
                     { "data": "comment" }
-                ]
+                ],
+                "data": sanityDataSet
+
             });
 
             var selected_rows = [];
 
             var freeze_table = $("#freeze_table").DataTable({
                 "processing": true,
-                "ajax": "freeze_data.txt",
+                "ajax": "freeze_data.json",
                 "columns": [
                     {
                         "searchable": false,
                         "orderable": false,
                         "className": "dt-cell-selectrow dt-cell-center",
-                        "render": function(data, type, full, meta) {
-                            return '<input type="checkbox">';
+                        "render": function(data, type, full_object, meta) {
+                            if (1 === full_object.sanity )
+                                return '<input type="checkbox" disabled>';
+                            else
+                                return '<input type="checkbox">';
                         }
                     },
                     { "data": "date" },
@@ -510,7 +551,9 @@
                 "rowCallback": function(row, data, index) {
                     var row_id = data.id;
 
-                    if ( 0 <= find_in_array(row_id, selected_rows) )
+                    if ( 1 === data.sanity )
+                        $(row).addClass('sanity');
+                    else if ( 0 <= find_in_array(row_id, selected_rows) )
                     {
                         $(row).find('input[type="checkbox"]').prop('checked', true);
                         $(row).addClass('selected');
@@ -528,6 +571,7 @@
 
             $('#freeze_table tbody').on('click', 'input[type="checkbox"]', function(event)
             {
+                console.log("CLICKED!", $(this), $(this).prop("checked"), this.checked, $(this).prop("disabled"));
                 var $row = $(this).closest('tr');
                 var row_data = freeze_table.row($row).data();
 
@@ -585,14 +629,19 @@
                 //var button = this;
 
                 var newSanityData = [];
-                var freezeDataSet = freeze_table.rows().data();
+                var $selectedRows = $('#freeze_table tbody tr').filter(':has(:checkbox:checked)');
 
-                for (var i = 0, len = freezeDataSet.length; i < len; i++)
+                for (var i = 0, len = $selectedRows.length; i < len; i++)
                 {
-                    var row_data = freezeDataSet[i];
+                    var row_data = freeze_table.row($selectedRows[i]).data();
 
-                    if ( 0 <= find_in_array(row_data.id, selected_rows) &&
-                         -1 === find_in_sanitydataset(row_data.id))
+                    //TODO: maybe the client should be super stupid as a guideline
+                    // and the server should do all the thinking
+                    // there is no need for this checking then,
+                    // just send everything to the server
+                    // and it will send back each sanity div/table's full content
+                    //
+                    if ( -1 === find_in_sanitydataset(row_data.id))
                     {
                         var data = new Object();
                         data.id      = row_data.id;
@@ -602,15 +651,28 @@
                         data.env     = row_data.env;
                         data.content = row_data.content;
                         data.comment = row_data.comment;
+                        data.sanity  = 1;
                         newSanityData.push(data);
+
+                        window.alert("TODO");
+                        //TODO this should be done after ajax save
+                        // can use the ok.ajax file for testing for now
+                        // just to set up the ajax query.
+                        // fill in the data, send it via ajax, on success add data to the sanity divs/tables
+                        // and disable the rows/uncheck things
+                        // this has to be moved outside of this loop for this into a separate loop?
+                        row_data.sanity = 1;
+
                     }
                 }
 
-                window.alert("TODO");
-                //TODO: Introduce a flag for 'under sanity', and recolor/make them unselectable
-                //      within the FREEZE table
+                $($selectedRows).addClass('sanity').find('td:first input[type="checkbox"]')
+                    .trigger("click")
+                    .prop("disabled", "disabled");
 
-                // ALso instead of a sanity data table, have a separate info box for each release with it's own
+                //TODO
+                // ALso instead of a sanity data table, have a separate info box (based on data.rel string for title
+                // for each release with it's own
                 // list of added freezes. + ability to add/remove from this list (also updates the freeze table)
 
                 // Once the sanity is completed, update the flag of the freeze table row, hide it in the table, save it

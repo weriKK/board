@@ -5,3 +5,12 @@
 .odd.selected {
     background-color: #BAD0EF !important;
 }
+
+.sanity {
+    background-color: #FCF8E3 !important;
+}
+
+
+.odd.sanity {
+    background-color: #FAF2CC !important;
+}
